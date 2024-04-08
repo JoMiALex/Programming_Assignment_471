@@ -5,7 +5,7 @@
 >Tuan Nguyen
 >Ibrahim Israr
 >
-> Email - jlott1004@csu.fullerton.edu
+> Email - jlott1004@csu.fullerton.edu, mariahhsall@csu.fullerton.edu
 >
 >
 >
