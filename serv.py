@@ -41,21 +41,21 @@ while True:
  
   c, addr = s.accept()     
   print ('Got connection from', addr )
-  while True:
-    rBuff = ""
-    fileData = ""
-    fileSize = 0
-    fSizeBuff = ""
+  #while True:
+  rBuff = ""
+  fileData = ""
+  fileSize = 0
+  fSizeBuff = ""
 
-    fSizeBuff = dataReciever(c, 10)
+  fSizeBuff = dataReciever(c, 10)
 
-    fileSize = int(fSizeBuff)
-    print("The file size is ", fileSize)
+  fileSize = int(fSizeBuff)
+  print("The file size is ", fileSize)
 
-    fileData = dataReciever(c, fileSize)
+  fileData = dataReciever(c, fileSize)
 
-    print("The file data is: ", fileData)
-    continue
+  print("The file data is: ", fileData)
+  #continue
   
   c.send('Thank you for connecting'.encode()) 
  
