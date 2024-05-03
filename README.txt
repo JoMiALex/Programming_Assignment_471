@@ -4,7 +4,7 @@ Names and email addresses of all partners:
   John Michael Lott - jlott1004@csu.fullerton.edu
   Mariah Salgado - mariahhsall@csu.fullerton.edu
   Tuan Nguyen - tnguyen527@csu.fullerton.edu
-  Ibrahim Israr - 
+  Ibrahim Israr - misrar0@csu.fullerton.edu
 
 The programming language: python
 
