@@ -22,6 +22,6 @@ How to execute the program:
       ftp> quit (disconnects from the server and exits)
     
   The server shall be invoked as: python serv.py <PORTNUMBER>
-    <PORT NUMBER>specifiestheport atwhichftp serveraccepts connection requests.
+    <PORT NUMBER>specifies the port at which ftp server accepts connection requests.
     For example: python serv.py 1234 
 
