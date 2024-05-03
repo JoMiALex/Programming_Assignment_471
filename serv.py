@@ -34,19 +34,31 @@ port = 12345
 s.bind(('', port))         
 print ("socket binded to %s" %(port)) 
 
-s.listen(5)     
+s.listen(3)     
 print ("socket is listening")            
 
 while True: 
  
   c, addr = s.accept()     
   print ('Got connection from', addr )
+
+  command = s.recv(1024).decode()
+  toDo = command.split()
+
+  if (toDo[0] == "quit"):
+    c.send('Thank you for connecting'.encode()) 
+    break
+  while True:
+    dSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    dSock.bind()
+
   #while True:
   rBuff = ""
   fileData = ""
   fileSize = 0
   fSizeBuff = ""
 
+  #if recieving this*
   fSizeBuff = dataReciever(c, 10)
 
   fileSize = int(fSizeBuff)
@@ -56,10 +68,5 @@ while True:
 
   print("The file data is: ", fileData)
   #continue
-  
-  c.send('Thank you for connecting'.encode()) 
  
-  
-  c.close()
-  
-  break
+c.close()
