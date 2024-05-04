@@ -117,10 +117,10 @@ while True:
   c, addr = s.accept()     
   print ('Got connection from', addr )
 
-  dataSock = socket.socket()
-
   while True:
     port = s.recv(1024).decode()               
+
+    dataSock = socket.socket()
 
     dataSock.connect(('localhost', port))
     # Receive the command from the client
