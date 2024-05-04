@@ -128,8 +128,6 @@ while True:
       print(f"Client: {addr} disconnected")
       dataSock.close()
       break
+  break
 
-    break
-  
- 
 c.close()
