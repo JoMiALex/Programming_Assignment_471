@@ -114,7 +114,9 @@ while True:
   while True:
     port = s.recv(1024).decode()               
 
-    dataSock.connect(('localhost', port))
+    dataSock = socket.socket()
+
+    dataSock.connect(('localhost', ePort))
     # Receive the command from the client
     command = s.recv(1024).decode()
     
