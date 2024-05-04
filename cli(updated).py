@@ -1,5 +1,10 @@
 import socket
-from ephemeral import get_ephemeral_port
+import sys
+import random
+
+def generate_ephemeral_port():
+    # Generate a random port number in the ephemeral port range (49152–65535)
+    return random.randint(49152, 65535)
 
 def receive_all(sock, num_bytes):
     recv_buff = b""
@@ -65,7 +70,7 @@ while True:
     elif user_input.startswith("put"):
         file_name = user_input.split()[1]
         # Create data channel socket
-        data_port = get_ephemeral_port()
+        data_port = generate_ephemeral_port()
         data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         data_sock.bind(('localhost', data_port))
         data_sock.listen(1)
