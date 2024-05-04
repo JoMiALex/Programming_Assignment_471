@@ -45,21 +45,33 @@ def ftp_client_loop(sock):
     print("FTP client is ready. Type your commands.")
     while True:
         command = input("ftp> ").strip()
+
+        dataSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         
+        print ("Data socket successfully created")
+        
+        dataSock.bind(('localhost', 0))         
+        print ("Data socket binded to port:", dataSock.getsockName()[1])
+
+        sock.sendall(dataSock.getsockName()[1].encode())
+
+        dataSock.listen(1)     
+        print ("Data socket is listening")
+
         if command.startswith("get "):
             _, filename = command.split(maxsplit=1)
-            send_command(sock, command)
-            receive_file(sock, filename)
+            send_command(dataSock, command)
+            receive_file(dataSock, filename)
         elif command.startswith("put "):
             _, filename = command.split(maxsplit=1)
             if os.path.exists(filename):
-                send_command(sock, command)
-                send_file(sock, filename)
+                send_command(dataSock, command)
+                send_file(dataSock, filename)
             else:
                 print(f"Error: File {filename} does not exist.")
         elif command == "ls":
-            send_command(sock, command)
+            send_command(dataSock, command)
         elif command == "quit":
-            send_command(sock, command)
+            send_command(dataSock, command)
             break
         else:
             print("Unknown command")
