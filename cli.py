@@ -1,96 +1,90 @@
-#python server side TCP
-#
-#@author John Michael Lott
-#@author Mariah Salgado
-#@author Tuan Nguyen
-#@author Ibrahim Israr
-
 import socket
 import sys
-import os
+import random
 
-def send_command(sock, command):
-    
-    sock.sendall(command.encode())
-    response = sock.recv(1024).decode()
-    print("Server response:", response)
-    return response
+def generate_ephemeral_port():
+    # Generate a random port number in the ephemeral port range (49152–65535)
+    return random.randint(49152, 65535)
 
-def receive_file(sock, filename):
-    # Receives a file from the server
-    file_size_str = sock.recv(10).decode()
-    file_size = int(file_size_str.strip())
-    received_bytes = 0
-    with open(filename, 'wb') as file:
-        while received_bytes < file_size:
-            data = sock.recv(1024)
-            if not data:
-                break
-            file.write(data)
-            received_bytes += len(data)
-    print(f"Received {filename} with {received_bytes} bytes")
+def receive_all(sock, num_bytes):
+    recv_buff = b""
+    while len(recv_buff) < num_bytes:
+        tmp_buff = sock.recv(num_bytes - len(recv_buff))
+        if not tmp_buff:
+            return None
+        recv_buff += tmp_buff
+    return recv_buff
 
-def send_file(sock, filename):
-    # Send file to the server
-    with open(filename, 'rb') as file:
-        data = file.read()
-        file_size = len(data)
-        file_size_str = f"{file_size:010d}"  
-        sock.sendall(file_size_str.encode())  
-        sock.sendall(data)  
-    print(f"Sent {filename} with {file_size} bytes")
+def send_file(sock, file_name):
+    # Open the file in binary mode
+    with open(file_name, "rb") as file_obj:
+        # Read file data
+        file_data = file_obj.read()
+        # Calculate file size
+        file_size = len(file_data)
+        # Convert file size to fixed-length string
+        file_size_str = str(file_size).zfill(10)
+        # Send file size to server
+        sock.sendall(file_size_str.encode())
+        # Send file data to server
+        sock.sendall(file_data)
 
-def ftp_client_loop(sock):
-    # Handles FTP client loop
-    print("FTP client is ready. Type your commands.")
-    while True:
+# Command prompt
+def ftp_prompt():
+    print("ftp>", end=" ", flush=True)
 
-        dataSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         
-        print ("Data socket successfully created")
-        
-        dataSock.bind(('localhost', 0))         
-        print ("Data socket binded to port:", dataSock.getsockname()[1])
-
-        sock.sendall(dataSock.getsockname()[1].encode())
-
-        dataSock.listen(1)     
-        print ("Data socket is listening")
-
-        command = input("ftp> ").strip()
-
-        if command.startswith("get "):
-            _, filename = command.split(maxsplit=1)
-            send_command(dataSock, command)
-            receive_file(dataSock, filename)
-        elif command.startswith("put "):
-            _, filename = command.split(maxsplit=1)
-            if os.path.exists(filename):
-                send_command(dataSock, command)
-                send_file(dataSock, filename)
-            else:
-                print(f"Error: File {filename} does not exist.")
-        elif command == "ls":
-            send_command(dataSock, command)
-        elif command == "quit":
-            send_command(dataSock, command)
-            break
-        else:
-            print("Unknown command")
-        dataSock.close()
-
-
-print("Starting FTP client...")
-control_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('localhost', 12345)
-try:
-    control_socket.connect(server_address)
-    print("Connected to the server.")
-except socket.error as e:
-    print(f"Connection failed: {e}")
+# Command line argument check
+if len(sys.argv) != 3:
+    print("USAGE: python client.py <SERVER IP> <SERVER PORT>")
     sys.exit(1)
 
-ftp_client_loop(control_socket)
+# Server IP and port
+server_ip = sys.argv[1]
+server_port = int(sys.argv[2])
 
+# Create command channel socket
+command_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+command_sock.connect((server_ip, server_port))
 
-print("Closing connections...")
-control_socket.close()
+print("Connected to server.")
+
+# Display initial prompt
+ftp_prompt()
+
+# Main loop to send commands to the server
+while True:
+    # Get user input
+    user_input = input().strip()
+    # Send command to server
+    command_sock.sendall(user_input.encode())
+    # Receive acknowledgment from server
+    ack = command_sock.recv(1024).decode()
+    if ack != "Recieved":
+        print("Error: Acknowledgment not received from server.")
+        break
+    # Check if user wants to quit
+    if user_input.lower() == "quit":
+        print("Exiting...")
+        break
+    # Handle put command (upload file)
+    elif user_input.startswith("put"):
+        file_name = user_input.split()[1]
+        # Create data channel socket
+        data_port = generate_ephemeral_port()
+        data_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        data_sock.bind(('localhost', data_port))
+        data_sock.listen(1)
+        # Send data channel port to server
+        command_sock.sendall(str(data_port).encode())
+        # Accept connection from server on data channel
+        data_conn, _ = data_sock.accept()
+        # Send file to server
+        send_file(data_conn, file_name)
+        # Close data channel connection
+        data_conn.close()
+        data_sock.close()
+    # Display prompt for next command
+    ftp_prompt()
+
+# Close command channel connection
+command_sock.close()
