@@ -44,18 +44,19 @@ def ftp_client_loop(sock):
     # Handles FTP client loop
     print("FTP client is ready. Type your commands.")
     while True:
-        command = input("ftp> ").strip()
 
         dataSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         
         print ("Data socket successfully created")
         
         dataSock.bind(('localhost', 0))         
-        print ("Data socket binded to port:", dataSock.getsockName()[1])
+        print ("Data socket binded to port:", dataSock.getsockname()[1])
 
-        sock.sendall(dataSock.getsockName()[1].encode())
+        sock.sendall(dataSock.getsockname()[1].encode())
 
         dataSock.listen(1)     
         print ("Data socket is listening")
+
+        command = input("ftp> ").strip()
 
         if command.startswith("get "):
             _, filename = command.split(maxsplit=1)
