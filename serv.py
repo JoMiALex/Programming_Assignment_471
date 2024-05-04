@@ -119,10 +119,7 @@ while True:
 
   while True:
     #port = 12345           
-
-    dataSock = socket.socket()
-
-    dataSock.connect(('localhost', port))
+    
     # Receive the command from the client
     command = s.recv(1024).decode()
     
