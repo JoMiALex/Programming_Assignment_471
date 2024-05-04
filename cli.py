@@ -6,22 +6,15 @@
 #@author Ibrahim Israr
 
 import socket
-import os
-
-def get_ephemeral_port():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(('localhost', 0))
-    port = s.getsockname()[1]
-    s.close()
-    return port
+import sys
+from ephemeral import get_ephemeral_port
 
 def send_command(sock, command):
     sock.sendall(command.encode())
     response = sock.recv(1024).decode()
-    return response
+    print("Server response:", response)
 
-def receive_file(sock, filename):
-    filesize = int(sock.recv(1024).decode())
+def receive_data(sock, filename, filesize):
     received_bytes = 0
     with open(filename, 'wb') as file:
         while received_bytes < filesize:
@@ -32,58 +25,27 @@ def receive_file(sock, filename):
             received_bytes += len(data)
     print(f"Received {received_bytes} bytes for file {filename}")
 
-def send_file(sock, filename):
-    filesize = os.path.getsize(filename)
-    sock.sendall(str(filesize).encode())
-    with open(filename, 'rb') as file:
-        data = file.read(1024)
-        while data:
-            sock.sendall(data)
-            data = file.read(1024)
+# Control Channel
+control_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server_address = ('localhost', 12345)
+control_socket.connect(server_address)
 
-# client loop
-def ftp_client():
-    control_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = ('localhost', 12345)
-    control_socket.connect(server_address)
-    data_port = get_ephemeral_port()
-    control_socket.sendall(f'DATAPORT {data_port}'.encode())
+# Setup Data Channel
+data_port = get_ephemeral_port()
+control_socket.sendall(str(data_port).encode())
 
-    data_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    data_socket.bind(('localhost', data_port))
-    data_socket.listen(1)
-    data_connection, _ = data_socket.accept()
+data_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+data_socket.bind(('localhost', data_port))
+data_socket.listen(1)
+data_connection, _ = data_socket.accept()
 
-    while True:
-        command = input('ftp> ').strip()
-        if command.startswith('get'):
-            _, filename = command.split()
-            response = send_command(control_socket, f'GET {filename}')
-            if response == 'OK':
-                receive_file(data_connection, filename)
-            else:
-                print(response)
-        elif command.startswith('put'):
-            _, filename = command.split()
-            if os.path.exists(filename):
-                response = send_command(control_socket, f'PUT {filename}')
-                if response == 'OK':
-                    send_file(data_connection, filename)
-                else:
-                    print(response)
-            else:
-                print(f"Error: {filename} does not exist.")
-        elif command.startswith('ls'):
-            response = send_command(control_socket, 'LS')
-            print(response)
-        elif command == 'quit':
-            send_command(control_socket, 'QUIT')
-            break
-        else:
-            print("Unknown command")
+# Send command to server
+send_command(control_socket, "get sample.txt")
 
-    control_socket.close()
-    data_connection.close()
+# Receive file data
+filesize = int(control_socket.recv(1024).decode())
+receive_data(data_connection, "received_sample.txt", filesize)
 
-if __name__ == '__main__':
-    ftp_client()
+# Close connections
+control_socket.close()
+data_connection.close()
