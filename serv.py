@@ -93,10 +93,18 @@ command_handlers = {
   "put": handle_put_command,
 }
 
+# Command line argument check
+if len(sys.argv) != 2:
+    print("USAGE: python server.py <SERVER PORT>")
+    sys.exit(1)
+
+# The port on which to listen
+port = int(sys.argv[1])
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         
 print ("Socket successfully created")
  
-port = 12345               
+#port = 12345               
 
 s.bind(('', port))         
 print ("socket binded to %s" %(port)) 
