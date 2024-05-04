@@ -95,7 +95,7 @@ command_handlers = {
 
 # Command line argument check
 if len(sys.argv) != 2:
-    print("USAGE: python server.py <SERVER PORT>")
+    print("USAGE: python serv.py <SERVER PORT>")
     sys.exit(1)
 
 # The port on which to listen
@@ -118,7 +118,7 @@ while True:
   print ('Got connection from', addr )
 
   while True:
-    port = s.recv(1024).decode()               
+    #port = 12345           
 
     dataSock = socket.socket()
 
