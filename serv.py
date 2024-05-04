@@ -104,7 +104,7 @@ port = int(sys.argv[1])
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)         
 print ("Socket successfully created")
  
-port = 12345               
+#port = 12345               
 
 s.bind(('', port))         
 print ("socket binded to %s" %(port)) 

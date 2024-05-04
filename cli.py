@@ -75,6 +75,7 @@ def ftp_client_loop(sock):
             break
         else:
             print("Unknown command")
+        dataSock.close()
 
 
 print("Starting FTP client...")
