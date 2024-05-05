@@ -127,7 +127,6 @@ while True:
     handler = command_handlers.get(command.split()[0])
     if handler:
       handler(c, command)
-      continue
     else:
       # Exit the loop if the client disconnects
       print(f"Client: {addr} disconnected")
