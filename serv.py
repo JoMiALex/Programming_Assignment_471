@@ -55,7 +55,7 @@ def handle_get_command(client_socket, command):
     except FileNotFoundError:
         client_socket.send("File not found".encode())
 
-def handle_ls_command(client_socket):
+def handle_ls_command(client_socket, command):
     client_socket.sendall("Recieved".encode())
     try:
         # Get the list of files in the current directory
@@ -121,7 +121,7 @@ while True:
     #port = 12345           
     
     # Receive the command from the client
-    command = s.recv(1024).decode()
+    command = c.recv(1024).decode()
     
     # Handle the command using the command handlers dictionary
     handler = command_handlers.get(command.split()[0])
