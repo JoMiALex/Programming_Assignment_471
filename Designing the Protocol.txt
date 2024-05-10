@@ -25,8 +25,8 @@ The sizes and formats of the messages exchanged across the control channel can v
     These commands are typically encoded as strings, with each command represented as a sequence of characters terminated by a newline character ('\n').
   2 Server Responses: Response messages from the server should provide feedback on the execution of the client's commands. These messages can vary in size depending on the length of the response text.
   For example:
-    "SUCCESS: File transferred successfully."
-    "FAILURE: File not found."
+    "File found"
+    "File not found."
     Similar to client commands, server responses are typically encoded as strings, with each response terminated by a newline character ('\n').
   3 Data Channel Setup Information: Messages exchanged for setting up the data channel typically involve conveying port numbers for establishing connections. The size of these messages is usually small, as they contain numerical values representing port numbers.
   For example: "Data channel port: 1234" These messages can be encoded as strings containing the port number.
