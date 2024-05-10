@@ -9,10 +9,10 @@ Names and email addresses of all partners:
 The programming language: python
 
 How to execute the program:  
-  The ftp client is invoked as: python cli.py <server machine> <server port>
-    For example: python cli.py ecs.fullerton.edu 1234
+  The ftp client is invoked as: python client.py <server port>
+    For example: python cli.py 127.0.0.1 54123
     <server machine> is the domain name of the server (ecs.fullerton.edu). 
-    <server port> is the port number of server (1234)
+    <server port> is the port number of server (54123)
     This will be converted into 32 bit IP address using DNS lookup. 
     Upon connecting to the server, the client prints out ftp>, which allows the user to execute
     the following commands:  

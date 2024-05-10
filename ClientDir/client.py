@@ -77,16 +77,17 @@ def ftp_client_loop(sock):
             print("Unknown command")
 
 
-if len(sys.argv) != 2:
-    print("USAGE: python client.py <SERVER PORT>")
+if len(sys.argv) != 3:
+    print("USAGE: python client.py <SERVER IP> <SERVER PORT>")
     sys.exit(1)
 
 # The port on which to listen
-port = int(sys.argv[1])
+ip = sys.argv[1]
+port = int(sys.argv[2])
 
 print("Starting FTP client...")
 control_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('localhost', port)
+server_address = (ip, port)
 try:
     control_socket.connect(server_address)
     print("Connected to the server.")
