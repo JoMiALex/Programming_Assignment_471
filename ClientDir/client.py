@@ -14,7 +14,7 @@ def send_command(sock, command):
     sock.sendall(command.encode())
     response = sock.recv(1024).decode()
     print("Server response:", response)
-    return response
+    #return response
 
 def receive_file(sock, filename):
     # Receives a file from the server
@@ -35,10 +35,16 @@ def send_file(sock, filename):
     with open(filename, 'rb') as file:
         data = file.read()
         file_size = len(data)
+        #while len(file_size_str) < 10:
+            #file_size_str = "0" + file_size_str
         file_size_str = f"{file_size:010d}"  
         sock.sendall(file_size_str.encode())  
-        sock.sendall(data)  
+        sock.sendall(data)
     print(f"Sent {filename} with {file_size} bytes")
+
+def list_files(sock):
+    fileList = sock.recv(1024).decode()
+    print(fileList)
 
 def ftp_client_loop(sock):
     # Handles FTP client loop
@@ -50,7 +56,10 @@ def ftp_client_loop(sock):
         if command.startswith("get "):
             _, filename = command.split(maxsplit=1)
             send_command(sock, command)
-            receive_file(sock, filename)
+            find = sock.recv(1024).decode()
+            print(find)
+            if find.split()[1] != "not":
+                receive_file(sock, filename)
         elif command.startswith("put "):
             _, filename = command.split(maxsplit=1)
             if os.path.exists(filename):
@@ -60,12 +69,13 @@ def ftp_client_loop(sock):
                 print(f"Error: File {filename} does not exist.")
         elif command == "ls":
             send_command(sock, command)
+            list_files(sock)
         elif command == "quit":
             send_command(sock, command)
             break
         else:
             print("Unknown command")
-        sock.close()
+
 
 if len(sys.argv) != 2:
     print("USAGE: python client.py <SERVER PORT>")

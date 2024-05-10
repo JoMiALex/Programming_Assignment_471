@@ -10,24 +10,26 @@ import os
 import sys
 
 def receive_all(sock, num_bytes):
-  sock.sendall("Recieved".encode())
+  #sock.sendall("Recieved".encode())
   # Buffer to store received data
-  recv_buff = ""
-  tmp_buff = ""
-    
+  #recv_buff = ""
+  #tmp_buff = ""
+  data = "".encode()
+  recievedBytes = 0
   # Keep receiving until all data is received
-  while len(recv_buff) < num_bytes:
+  while recievedBytes < num_bytes:
     # Attempt to receive bytes
-    tmp_buff =  sock.recv(num_bytes)
-        
-    # Break if the other side has closed the socket
-    if not tmp_buff:
-      break
-        
-    # Add the received bytes to the buffer
-    recv_buff += tmp_buff.decode()
+    dataBuff = sock.recv(1024)
     
-    return recv_buff
+    # Break if the other side has closed the socket
+    if not dataBuff:
+      break
+    
+    # Add the received bytes to the buffer
+    data += dataBuff
+    recievedBytes += len(dataBuff)
+    
+  return data
 
 def handle_get_command(client_socket, command):
     client_socket.sendall("Recieved".encode())
@@ -46,6 +48,7 @@ def handle_get_command(client_socket, command):
             # Prepend the size of the data to the file data
             file_data = file_size_str.encode() + file_data
             
+            client_socket.sendall("File Found".encode())
             # Send the data to the client
             num_sent = 0
             while len(file_data) > num_sent:
@@ -73,7 +76,7 @@ def handle_put_command(client_socket, command):
     client_socket.sendall("Recieved".encode())
 
     # Receive the file size from the client
-    file_size = int(client_socket.recv(1024).decode())
+    file_size = int(client_socket.recv(10).decode())
 
     # Receive the file data
     file_data = receive_all(client_socket, file_size)
@@ -83,7 +86,7 @@ def handle_put_command(client_socket, command):
     
     # Write the received data to a new file
     with open(file_name, "wb") as file_out:
-        file_out.write(file_data)
+      file_out.write(file_data)
     print(f"Received {len(file_data)} bytes for file {file_name}")
     print("Put command success")
 
@@ -122,14 +125,18 @@ while True:
     
     # Receive the command from the client
     command = c.recv(1024).decode()
+
+    call = command.split()[0]
     
     # Handle the command using the command handlers dictionary
-    handler = command_handlers.get(command.split()[0])
+    handler = command_handlers.get(call)
     if handler:
-      handler(c, command)
+        handler(c, command)
     else:
-      # Exit the loop if the client disconnects
+      if call == "quit":
+        c.sendall("Recieved".encode())
+      #Exit the loop if the client disconnects
       print(f"Client: {addr} disconnected")
-      c.close()
       break
   break
+c.close()
